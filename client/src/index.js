@@ -7,7 +7,7 @@ import Signin from './components/Signin';
 import Signup from './components/Signup';
 import Checkout from './components/Checkout';
 
-import './index.css';
+import 'gestalt/dist/gestalt.css';
 
 import registerServiceWorker from './registerServiceWorker';
 
