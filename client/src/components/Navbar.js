@@ -14,12 +14,12 @@ const Navbar = () => {
             shape='roundedBottom'
         >
             {/* Sign In Link */}
-            <NavLink to='/signin'>
+            <NavLink  id='text' activeClassName='active' to='/signin'>
                 <Text size='x1' color='white'>Sign In</Text>
             </NavLink>
 
             {/* Title and Logo */}
-            <NavLink to='/'>
+            <NavLink id='text' activeClassName='active' exact to='/'>
                 <Box display="flex" alignItems="center">
                     <Box margin={2} width={50} height={50}>
                         <Image 
@@ -36,7 +36,7 @@ const Navbar = () => {
             </NavLink>
 
             {/* Sign Up Link */}
-            <NavLink to='/signup'>
+            <NavLink id='text' activeClassName='active' to='/signup'>
                 <Text size='x1' color='white'>Sign Up</Text>
             </NavLink>
 
