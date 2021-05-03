@@ -51,13 +51,21 @@ class App extends Component {
           </Heading>
         </Box>
         {/* Brands */}
-        <Box display="flex" justifyContent="around">
+        <Box
+          dangerouslySetInlineStyle={{
+            __style: {
+              backgroundColor: '#d6c8ec'
+            }
+          }}
+          shape='rounded'
+          wrap display="flex" justifyContent="around">
           {brands.map(brand => (
-            <Box width={200} height={200} key={brand._id}>
+            <Box paddingY={4} margin={2} width={200} key={brand._id}>
               <Card
                 image={
                   <Box height={200} width={200}>
                     <Image
+                      fit='cover'
                       alt="Brand"
                       naturalHeight={1}
                       naturalWidth={1}
