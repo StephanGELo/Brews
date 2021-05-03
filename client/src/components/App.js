@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Box, Heading, Text, Card, Image } from 'gestalt';
+import { Container, Box, Heading, Text, Card, Image, SearchField, Icon } from 'gestalt';
 import Strapi from 'strapi-sdk-javascript/build/main';
 
 const apiUrl = process.env.API_URL || 'http://localhost:1337';
@@ -9,7 +9,8 @@ const strapi = new Strapi(apiUrl);
 
 class App extends Component {
   state = {
-    brands: []
+    brands: [],
+    searchTerm: ""
   }
 
   async componentDidMount() {
@@ -34,11 +35,33 @@ class App extends Component {
     }
   }
 
+  handleChange = ({ value }) => this.setState({
+    searchTerm: value
+  });
+
   render() {
-    const { brands } = this.state;
+    const { brands, searchTerm } = this.state;
 
     return (
       <Container>
+        {/* Brands Search Field */}
+        <Box display="flex" justifyContent="center" marginTop={4}>
+          <SearchField
+            accessibilityLabel="Brands Search Field"
+            id='searchField'
+            onChange={this.handleChange}
+            placeholder="Search Brands ..."
+          />
+          <Box margin={3}>
+            <Icon
+              accessibilityLabel="Filter Icon"
+              icon="filter"
+              color={searchTerm ? 'orange' : 'gray'}
+              size={20}
+            />
+          </Box>
+        </Box>
+
         {/* Brands Section */}
         <Box
           display='flex'
@@ -58,7 +81,9 @@ class App extends Component {
             }
           }}
           shape='rounded'
-          wrap display="flex" justifyContent="around">
+          wrap display="flex"
+          justifyContent="around"
+        >
           {brands.map(brand => (
             <Box paddingY={4} margin={2} width={200} key={brand._id}>
               <Card
