@@ -39,8 +39,15 @@ class App extends Component {
     searchTerm: value
   });
 
+  filteredBrands = ({ searchTerm, brands }) => {
+    return brands.filter((brand) => {
+      return brand.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        brand.description.toLowerCase().includes(searchTerm.toLowerCase())
+    });
+  }
+
   render() {
-    const { brands, searchTerm } = this.state;
+    const { searchTerm } = this.state;
 
     return (
       <Container>
@@ -50,6 +57,7 @@ class App extends Component {
             accessibilityLabel="Brands Search Field"
             id='searchField'
             onChange={this.handleChange}
+            value={searchTerm} //single source of Truth - control form
             placeholder="Search Brands ..."
           />
           <Box margin={3}>
@@ -84,7 +92,7 @@ class App extends Component {
           wrap display="flex"
           justifyContent="around"
         >
-          {brands.map(brand => (
+          {this.filteredBrands(this.state).map(brand => (
             <Box paddingY={4} margin={2} width={200} key={brand._id}>
               <Card
                 image={
