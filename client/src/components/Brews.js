@@ -1,6 +1,6 @@
 import React from 'react';
 import Strapi from 'strapi-sdk-javascript/build/main';
-import { Container, Heading, Box, Card, Image, Text, Button, Mask } from 'gestalt';
+import { Container, Heading, Box, Card, Image, Text, Button, Mask, IconButton } from 'gestalt';
 import { Link } from 'react-router-dom';
 
 const apiUrl = process.env.API_URL || 'http://localhost:1337';
@@ -40,6 +40,22 @@ class Brews extends React.Component {
             });
         } catch (err) {
             console.log(err)
+        }
+    }
+
+    addToCart = brew => {
+        const alreadyInCart = this.state.cartItems.findIndex(item => item._id === brew._id);
+
+        if (alreadyInCart === -1) {
+            const updatedItems = this.state.cartItems.concat({
+                ...brew,
+                quantity: 1
+            });
+            this.setState({ cartItems: updatedItems });
+        } else {
+            const updatedItems = [...this.state.cartItems];
+            updatedItems[alreadyInCart].quantity += 1;
+            this.setState({ cartItems: updatedItems });
         }
     }
 
@@ -117,6 +133,7 @@ class Brews extends React.Component {
                                         <Box marginTop={2}>
                                             <Text bold size="xl">
                                                 <Button
+                                                    onClick={() => this.addToCart(brew)}
                                                     color="blue"
                                                     shape="rounded"
                                                     text="Add To Cart"
@@ -132,16 +149,34 @@ class Brews extends React.Component {
 
                     </Box>
                 </Box>
+
                 {/* User Cart */}
                 <Box alignSelf="end" marginTop={2} marginLeft={8} >
                     <Mask shape="round" wash>
                         <Box display="flex" direction="column" alignItems="center" padding={2}>
+
                             {/* User Cart Heading */}
                             <Heading align="center" size="md">Your Cart</Heading>
                             <Text color="gray" italic>
                                 {cartItems.length} items selected
                             </Text>
-                            {/* cart Items (will add) */}
+
+                            {/* cart Items */}
+                            {cartItems.map(item => (
+                                <Box key={item._id} display="flex" alignItems="center">
+                                    <Text>
+                                        {item.name} x {item.quantity} - ${(item.quantity * item.price).toFixed(2)}}
+                                    </Text>
+                                    <IconButton
+                                        accessibilityLabel="Delete Item"
+                                        icon="clear"
+                                        size="sm"
+                                        iconColor="red"
+                                    />
+                                </Box>
+                            ))}
+
+
                             <Box display="flex" alignItems="center" justifyContent="center" direction="column">
                                 <Box margin={2}>
                                     {cartItems.length === 0 && (
