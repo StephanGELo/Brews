@@ -3,7 +3,7 @@ import Strapi from 'strapi-sdk-javascript/build/main';
 import { Container, Heading, Box, Card, Image, Text, Button, Mask, IconButton } from 'gestalt';
 import { Link } from 'react-router-dom';
 
-import { calculatePrice } from '../utils';
+import { calculatePrice, setCart, getCart } from '../utils';
 
 const apiUrl = process.env.API_URL || 'http://localhost:1337';
 const strapi = new Strapi(apiUrl);
@@ -38,7 +38,8 @@ class Brews extends React.Component {
             });
             this.setState({
                 brews: response.data.brand.brews,
-                brand: response.data.brand.name
+                brand: response.data.brand.name,
+                cartItems: getCart()
             });
         } catch (err) {
             console.log(err)
@@ -54,11 +55,11 @@ class Brews extends React.Component {
                 ...brew,
                 quantity: 1
             });
-            this.setState({ cartItems: updatedItems });
+            this.setState({ cartItems: updatedItems }, () => setCart(updatedItems));
         } else {
             const updatedItems = [...this.state.cartItems];
             updatedItems[alreadyInCart].quantity += 1;
-            this.setState({ cartItems: updatedItems });
+            this.setState({ cartItems: updatedItems }, () => setCart(updatedItems));
         }
     };
 
@@ -66,7 +67,7 @@ class Brews extends React.Component {
         const filteredItems = this.state.cartItems.filter(item =>
             item._id !== itemToDeleteId
         );
-        this.setState({ cartItems: filteredItems });
+        this.setState({ cartItems: filteredItems }, () => setCart(filteredItems));
     };
 
     render() {
