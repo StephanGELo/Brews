@@ -3,6 +3,8 @@ import Strapi from 'strapi-sdk-javascript/build/main';
 import { Container, Heading, Box, Card, Image, Text, Button, Mask, IconButton } from 'gestalt';
 import { Link } from 'react-router-dom';
 
+import { calculatePrice } from '../utils';
+
 const apiUrl = process.env.API_URL || 'http://localhost:1337';
 const strapi = new Strapi(apiUrl);
 
@@ -43,6 +45,7 @@ class Brews extends React.Component {
         }
     }
 
+    // Helper Functions
     addToCart = brew => {
         const alreadyInCart = this.state.cartItems.findIndex(item => item._id === brew._id);
 
@@ -57,7 +60,14 @@ class Brews extends React.Component {
             updatedItems[alreadyInCart].quantity += 1;
             this.setState({ cartItems: updatedItems });
         }
-    }
+    };
+
+    deleteItemFromCart = itemToDeleteId => {
+        const filteredItems = this.state.cartItems.filter(item =>
+            item._id !== itemToDeleteId
+        );
+        this.setState({ cartItems: filteredItems });
+    };
 
     render() {
         const { brand, brews, cartItems } = this.state;
@@ -156,7 +166,7 @@ class Brews extends React.Component {
                         <Box display="flex" direction="column" alignItems="center" padding={2}>
 
                             {/* User Cart Heading */}
-                            <Heading align="center" size="md">Your Cart</Heading>
+                            <Heading align="center" size="sm">Your Cart</Heading>
                             <Text color="gray" italic>
                                 {cartItems.length} items selected
                             </Text>
@@ -172,6 +182,7 @@ class Brews extends React.Component {
                                         icon="clear"
                                         size="sm"
                                         iconColor="red"
+                                        onClick={() => this.deleteItemFromCart(item._id)}
                                     />
                                 </Box>
                             ))}
@@ -183,7 +194,7 @@ class Brews extends React.Component {
                                         <Text color="red">Please select some items</Text>
                                     )}
                                 </Box>
-                                <Text size="lg">Total: $3.99</Text>
+                                <Text size="lg">Total: {calculatePrice(cartItems)}</Text>
                                 <Text>
                                     <Link to="/checkout">Checkout</Link>
                                 </Text>

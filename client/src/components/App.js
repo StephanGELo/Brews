@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import { Container, Box, Heading, Text, Card, Image, SearchField, Icon, Spinner } from 'gestalt';
 import Strapi from 'strapi-sdk-javascript/build/main';
 import Loader from './Loader';
+import './App.css';
+
 
 const apiUrl = process.env.API_URL || 'http://localhost:1337';
 const strapi = new Strapi(apiUrl);
-// import './App.css';
 
 class App extends Component {
   state = {
