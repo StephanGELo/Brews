@@ -1,7 +1,12 @@
 import React from 'react';
 import { Container, Box, Heading, Text, TextField, Button } from 'gestalt';
+import Strapi from "strapi-sdk-javascript/build/main";
 
 import ToastMessage from './ToastMessage';
+import { setToken } from '../utils';
+
+const apiUrl = process.env.API_URL || "http://localhost:1337";
+const strapi = new Strapi(apiUrl);
 
 class Signup extends React.Component {
 
@@ -10,7 +15,8 @@ class Signup extends React.Component {
         email: "",
         password: "",
         toast: false,
-        toastMessage: ""
+        toastMessage: "",
+        loading: false
     };
 
     handleChange = ({ event, value }) => {
@@ -20,14 +26,41 @@ class Signup extends React.Component {
         })
     };
 
-    handleSubmit = event => {
+    handleSubmit = async event => {
         event.preventDefault();
+        const { username, email, password } = this.state;
+
         if (this.isFormEmpty(this.state)) {
             this.showToast("Fill in all the Fields");
             return;
         }
-        console.log("submitted")
+
+        // Sign up User 
+        try {
+            // Set Loading - true
+            this.setState({ loading: true })
+            // make request to register user with strapi
+            const response = await strapi.register(username, email, password);
+            // set loading - false
+            this.setState({ loading: false });
+            // put token    (to manage user session)  in local storage
+            setToken(response.jwt);
+            // redirect user to the homepage
+            this.redirectUser('/');
+
+        } catch (err) {
+            // set loading to false
+            this.setState({ loading: false });
+            // show error message with the toast message
+            this.showToast(err.message);
+        }
     };
+
+    redirectUser = path => this.props.history.push(path);
+
+    isFormEmpty = ({ username, email, password }) => {
+        return !username || !email || !password;
+    }
 
     showToast = toastMessage => {
         this.setState({ toast: true, toastMessage });
@@ -40,12 +73,11 @@ class Signup extends React.Component {
         }, 5000)
     };
 
-    isFormEmpty = ({ username, email, password }) => {
-        return !username || !email || !password;
-    }
+
+
 
     render() {
-        const { toastMessage, toast } = this.state;
+        const { toastMessage, toast, loading } = this.state;
         return (
             <Container>
                 <Box
@@ -105,6 +137,7 @@ class Signup extends React.Component {
                         />
                         <Button
                             inline
+                            disabled={loading}
                             color="blue"
                             text="Submit"
                             type="submit"
