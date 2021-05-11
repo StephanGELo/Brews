@@ -163,7 +163,7 @@ class Brews extends React.Component {
 
                 {/* User Cart */}
                 <Box alignSelf="end" marginTop={2} marginLeft={8} >
-                    <Mask shape="round" wash>
+                    <Mask shape="rounded" wash>
                         <Box display="flex" direction="column" alignItems="center" padding={2}>
 
                             {/* User Cart Heading */}

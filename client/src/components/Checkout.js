@@ -1,9 +1,9 @@
 import React from 'react';
-import { Container, Box, Heading, TextField, Button} from 'gestalt';
+import { Container, Box, Heading, Text, TextField} from 'gestalt';
 import Strapi from "strapi-sdk-javascript/build/main";
 
 import ToastMessage from './ToastMessage';
-import { setToken } from '../utils';
+import { calculatePrice, getCart, setToken } from '../utils';
 
 const apiUrl = process.env.API_URL || "http://localhost:1337";
 const strapi = new Strapi(apiUrl);
@@ -12,6 +12,7 @@ const strapi = new Strapi(apiUrl);
 class Checkout extends React.Component {
 
     state = {
+        cartItems: [],
         address:"",
         postalCode:"",
         city:"",
@@ -19,6 +20,10 @@ class Checkout extends React.Component {
         toast: false,
         toastMessage:""
 
+    }
+
+    componentDidMount() {
+        this.setState({cartItems: getCart()});
     }
 
     handleChange = ({ event, value }) => {
@@ -77,71 +82,108 @@ class Checkout extends React.Component {
 
 
     render () {
-        const { toast, toastMessage }= this.state
+        const { toast, toastMessage, cartItems }= this.state
         return (
             <Container>
+        
                 <Box
                   color="darkWash"
                     display="flex"
                     justifyContent="center"
                     alignItems="center"
+                    direction="column"
                     margin={4}
                     padding={4}
                     shape="rounded"
-            >
-                {/* Checkout Form */}
-                <form style={{
-                        display:"inlineBlock",              
-                        textAlign:"center",
-                        maxWidth:450
-                    }}
-                    onSubmit={this.handleConfirmOrder}
                 >
-    
+                    {/* Checkout Form Heading  */}
                     <Heading color="midnight">Checkout</Heading>
-                    
-                    {/* Shipping Address */}
-                    <TextField
-                        name="address"
-                        id="address"
-                        type="text"
-                        placeholder="Shipping Address"
-                        onChange={this.handleChange}
+                    {cartItems.length > 0 ? 
+                        <React.Fragment>
+                            {/* User Cart  */}
+                            <Box
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                            direction="column"
+                            marginTop={2}
+                            marginBottom={6}
+                        >
+                            <Text color="darkGray" italic>{cartItems.length} items for Checkout</Text>
+                            <Box padding={2}>
+                                {cartItems.map((item) => (
+                                    <Box key={item._id} padding={1}>
+                                        <Text color="midnight">
+                                            {item.name} x {item.quantity} - ${item.quantity * item.price}
+                                        </Text>
+                                    </Box>
+                                ))}
+                            </Box>
+                            <Text bold>Amount: {calculatePrice(cartItems)}</Text>
+                        </Box>
 
-                    />
-                    {/* Postal Code*/}
-                    <TextField
-                        id="postalCode"
-                        name="postalCode"
-                        type="number"
-                        placeholder="Postal Code"
-                        onChange={this.handleChange}
-                    />
-                           {/* City */}
-                    <TextField
-                        id="city"
-                        name="city"
-                        type="text"
-                        placeholder="City of Residence"
-                        onChange={this.handleChange}
-                    />
-                           {/* Confirmation Email Address */}
-                    <TextField
-                        id="confirmationEmailAddress"
-                        name="confirmationEmailAddress"
-                        type="email"
-                        placeholder="Confirmation Email Address"
-                        onChange={this.handleChange}
-                    />
+                             {/* Checkout Form */}
+                            <form style={{
+                            display:"inlineBlock",              
+                            textAlign:"center",
+                            maxWidth:450
+                        }}
+                        onSubmit={this.handleConfirmOrder}
+                    >
+        
+                        
+                        {/* Shipping Address */}
+                        <TextField
+                            name="address"
+                            id="address"
+                            type="text"
+                            placeholder="Shipping Address"
+                            onChange={this.handleChange}
 
-                    <button id="stripe__button"type="submit">Submit</button>
-            
-                </form>
+                        />
+                        {/* Postal Code*/}
+                        <TextField
+                            id="postalCode"
+                            name="postalCode"
+                            type="number"
+                            placeholder="Postal Code"
+                            onChange={this.handleChange}
+                        />
+                            {/* City */}
+                        <TextField
+                            id="city"
+                            name="city"
+                            type="text"
+                            placeholder="City of Residence"
+                            onChange={this.handleChange}
+                        />
+                            {/* Confirmation Email Address */}
+                        <TextField
+                            id="confirmationEmailAddress"
+                            name="confirmationEmailAddress"
+                            type="email"
+                            placeholder="Confirmation Email Address"
+                            onChange={this.handleChange}
+                        />
 
-            </Box>
-            <ToastMessage show={toast} message={toastMessage} />
+                        <button id="stripe__button"type="submit">Submit</button>
+                
+                    </form>
+                        </React.Fragment> : (
+                            // Default Text if no items in Cart 
+                            <Box
+                                color="darkWash"
+                                shape="rounded"
+                                padding={4}
+                            >
+                                <Heading align="center" color="watermelon" size="xs">Your Cart is Empty</Heading>
+                                <Text align="center" italic color="green">Add some brews!</Text>
+                            </Box>
+                        )
+                    }
+                </Box>
+                <ToastMessage show={toast} message={toastMessage} />
             </Container>
-
         );
     }
 }
