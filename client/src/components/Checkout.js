@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Box, Heading, Text, TextField} from 'gestalt';
+import { Container, Box, Heading, Text, Button, TextField, Modal, Spinner } from 'gestalt';
 import Strapi from "strapi-sdk-javascript/build/main";
 
 import ToastMessage from './ToastMessage';
@@ -18,8 +18,9 @@ class Checkout extends React.Component {
         city:"",
         confirmationEmailAddress:"",
         toast: false,
-        toastMessage:""
-
+        toastMessage:"",
+        orderProcessing: true,
+        modal: false
     }
 
     componentDidMount() {
@@ -42,26 +43,33 @@ class Checkout extends React.Component {
             return;
         }
 
-        // Sign up User 
-        try {
-            // Set Loading - true
-            this.setState({ loading: true })
-            // make request to register user with strapi
-            const response = await strapi.register(shippingAddress, postalCode, city, confirmationEmailAddress);
-            // set loading - false
-            this.setState({ loading: false });
-            // put token    (to manage user session)  in local storage
-            setToken(response.jwt);
-            // redirect user to the homepage
-            this.redirectUser('/');
+        // // Sign up User 
+        // try {
+        //     // Set Loading - true
+        //     this.setState({ loading: true })
+        //     // make request to register user with strapi
+        //     const response = await strapi.register(shippingAddress, postalCode, city, confirmationEmailAddress);
+        //     // set loading - false
+        //     this.setState({ loading: false });
+        //     // put token    (to manage user session)  in local storage
+        //     setToken(response.jwt);
+        //     // redirect user to the homepage
+        //     this.redirectUser('/');
 
-        } catch (err) {
-            // set loading to false
-            this.setState({ loading: false });
-            // show error message with the toast message
-            this.showToast(err.message);
-        }
+        // } catch (err) {
+        //     // set loading to false
+        //     this.setState({ loading: false });
+        //     // show error message with the toast message
+        //     this.showToast(err.message);
+        // }
+
+        this.setState({ modal: true})
+
     };
+
+    handleSubmitOrder = () => {
+
+    }
 
     redirectUser = path => this.props.history.push(path);
 
@@ -80,9 +88,10 @@ class Checkout extends React.Component {
         }, 5000)
     };
 
+    closeModal = () => {};
 
-    render () {
-        const { toast, toastMessage, cartItems }= this.state
+    render () { 
+        const { toast, toastMessage, cartItems, modal, orderProcessing }= this.state
         return (
             <Container>
         
@@ -182,10 +191,77 @@ class Checkout extends React.Component {
                         )
                     }
                 </Box>
+                {/* Confirmation Modal  */}
+                {modal && (
+                    <ConfirmationModal 
+                        orderProcessing={orderProcessing} 
+                        cartItems={cartItems} 
+                        closeModal={this.closeModal} 
+                        handleSubmitOrder={this.handleSubmitOrder}
+                    />
+                )}
                 <ToastMessage show={toast} message={toastMessage} />
+
             </Container>
         );
     }
 }
+
+const ConfirmationModal = ({ orderProcessing, cartItems, closeModal, handleSubmitOrder }) => (
+    <Modal
+        accessibilityModalLabel="Confirm Your Order"
+        accessibilityCloseLabel="close"
+        heading= "Confirm Your Order"
+        onDismiss={closeModal}
+        footer={
+            <Box
+                display="flex" marginRight={-1} marginLeft={-1} justifyContent="center"
+            >
+                <Box padding={1}>
+                    <Button 
+                        size="lg"
+                        color="red"
+                        text="Submit"
+                        disabled={orderProcessing}
+                        onClick={handleSubmitOrder}
+                    />
+                </Box>
+                <Box padding={1}>
+                    <Button 
+                        size="lg"
+                        text="Cancel"
+                        disabled={orderProcessing}
+                        onClick={closeModal}
+                    />
+                </Box>
+            </Box>
+        }
+        role="alertdialog"
+        size="sm"
+    >
+        {/* Order Summary  */}
+        {!orderProcessing && (
+            <Box display="flex" justifyContent="center" alignItems="center" direction="column" padding={2} color="darkWash">
+                {cartItems.map(item => (
+                    <Box key={item._id} padding={1}>
+                        <Text size="lg" color="red">
+                            {item.name} x {item.quantity} - ${item.quantity * item.price}
+                        </Text>
+                    </Box>
+                ))}
+                <Box paddingY={2}>
+                    <Text size="lg" bold>
+                        Total: {calculatePrice(cartItems)}
+                    </Text>
+                </Box>
+            </Box>
+        )}
+       
+        <Spinner show={orderProcessing} accessibilityLabel="Order Processing Spinner" />
+         {orderProcessing && <Text align="center" italic>Submitting Order...</Text>}
+
+        
+    </Modal>
+);
 
 export default Checkout;
