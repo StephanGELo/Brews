@@ -1,15 +1,15 @@
 import React from 'react';
 import { Container, Box, Heading, Text, Button, TextField, Modal, Spinner } from 'gestalt';
-import Strapi from "strapi-sdk-javascript/build/main";
-
+// import Strapi from "strapi-sdk-javascript/build/main";
+import { Elements, StripeProvider, CardElement, injectStripe } from 'react-stripe-elements';
 import ToastMessage from './ToastMessage';
 import { calculatePrice, getCart, setToken } from '../utils';
 
-const apiUrl = process.env.API_URL || "http://localhost:1337";
-const strapi = new Strapi(apiUrl);
+// const apiUrl = process.env.API_URL || "http://localhost:1337";
+// const strapi = new Strapi(apiUrl);
+const stripeApiKey = process.env.STRIPE_API_KEY;
 
-
-class Checkout extends React.Component {
+class _CheckoutForm extends React.Component {
 
     state = {
         cartItems: [],
@@ -174,7 +174,8 @@ class Checkout extends React.Component {
                             placeholder="Confirmation Email Address"
                             onChange={this.handleChange}
                         />
-
+                        {/* Card Element  */}
+                        <CardElement id="stripe__input" onReady={input => input.focus()}/>
                         <button id="stripe__button"type="submit">Submit</button>
                 
                     </form>
@@ -261,7 +262,16 @@ const ConfirmationModal = ({ orderProcessing, cartItems, closeModal, handleSubmi
          {orderProcessing && <Text align="center" italic>Submitting Order...</Text>}
 
         
-    </Modal>
+    </Modal> 
 );
 
+const CheckoutForm = injectStripe(_CheckoutForm);
+
+const Checkout = () => (
+    <StripeProvider apiKey={`${stripeApiKey}`}>
+        <Elements>
+            <CheckoutForm />
+        </Elements>
+    </StripeProvider>
+)
 export default Checkout;
