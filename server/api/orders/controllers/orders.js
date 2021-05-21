@@ -1,9 +1,8 @@
 'use strict';
 
 const { default: createStrapi } = require("strapi");
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY
-const stripe = require('stripe')(`${stripeSecretKey}`);
-
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+const stripe = require('stripe')(`${stripeSecretKey}`)
 /**
  * Read the documentation (https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#core-controllers)
  * to customize this controller
@@ -22,7 +21,7 @@ module.exports = {
         });
 
         // Create order in database
-        const order = await strapi.services.orders.add({
+        const order = await strapi.services.orders.create({
             user: ctx.state.user._id,
             address,
             amount,
